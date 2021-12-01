@@ -1,3 +1,4 @@
+# python for SPEED (I actually don't really do python, but it is fast to get going...)
 lines = []
 with open('../input/day1.txt') as f:
 	lines = f.read().splitlines()
