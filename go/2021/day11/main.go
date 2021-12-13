@@ -18,7 +18,6 @@ type octopusGrid struct {
 }
 
 func (o octopusGrid) octopusAt(row, col int) *octopus {
-	//fmt.Println(row, " ", col)
 	return &o.octopi[row*o.height+col]
 }
 
@@ -30,19 +29,6 @@ func (o octopusGrid) String() string {
 		}
 		s += "\n"
 	}
-	//
-	//s += "\n"
-	//
-	//for row := 0; row < o.height; row++ {
-	//	for col := 0; col < o.width; col++ {
-	//		if o.octopusAt(row, col).flashed {
-	//			s += "1"
-	//		} else {
-	//			s += "0"
-	//		}
-	//	}
-	//	s += "\n"
-	//}
 	return s
 }
 
