@@ -1,12 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"regexp"
-
-	//"regexp"
 	"strings"
 )
 
@@ -32,7 +29,7 @@ func newCaveNode(label string, neighbors map[string]*caveNode) *caveNode {
 }
 
 func parseInput() *caveNode {
-	data, err := ioutil.ReadFile("../input/dumb.txt")
+	data, err := ioutil.ReadFile("../input/day12.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -40,7 +37,6 @@ func parseInput() *caveNode {
 	var res *caveNode
 	allCaveNodes := make(map[string]*caveNode)
 	for _, line := range strings.Split(strings.TrimSpace(string(data)), "\n") {
-		// vals[1] needs vals[0] as a neighbor too!
 		vals := strings.Split(line, "-")
 		if _, ok := allCaveNodes[vals[1]]; !ok {
 			allCaveNodes[vals[1]] = newCaveNode(vals[1], nil)
@@ -50,6 +46,7 @@ func parseInput() *caveNode {
 		} else {
 			allCaveNodes[vals[0]] = newCaveNode(vals[0], map[string]*caveNode{vals[1]: allCaveNodes[vals[1]]})
 		}
+		allCaveNodes[vals[1]].neighbors[vals[0]] = allCaveNodes[vals[0]]
 		if vals[0] == "start" {
 			res = allCaveNodes[vals[0]]
 		}
@@ -57,7 +54,49 @@ func parseInput() *caveNode {
 	return res
 }
 
+type path struct {
+	v []string
+}
+
+func findAllPaths(node *caveNode, haveVisitedSmallCaveMax bool, visited map[string]bool) []*path {
+	if visited == nil {
+		visited = make(map[string]bool)
+	}
+	if visited[node.label] && !node.isBig {
+		haveVisitedSmallCaveMax = true
+	}
+	visited[node.label] = true
+
+	var paths []*path
+	for k := range node.neighbors {
+		if (!node.neighbors[k].isBig && visited[k] && haveVisitedSmallCaveMax) || k == "start"{
+			continue // don't want these paths
+		}
+
+		if k == "end" {
+			paths = append(paths, []*path{{v: []string{node.label, k}}}...)
+			continue
+		}
+
+		// copy map for each path so they don't 'share' visits
+		copyVisited := make(map[string]bool)
+		for k, v := range visited {
+			copyVisited[k] = v
+		}
+
+		// for every path my neighbor has, create a new path with myself as the root
+		for _, p := range findAllPaths(node.neighbors[k], haveVisitedSmallCaveMax, copyVisited) {
+			paths = append(paths, &path{v: append([]string{node.label}, p.v...)})
+		}
+	}
+	return paths
+}
+
 func main() {
-	nodes := parseInput()
-	fmt.Println(nodes)
+	startNode := parseInput()
+	paths := findAllPaths(startNode, true, nil)
+	log.Print(len(paths))
+
+	paths = findAllPaths(startNode, false, nil)
+	log.Print(len(paths))
 }
