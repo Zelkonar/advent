@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"strconv"
@@ -138,5 +137,5 @@ func main() {
 	for _, f := range folds {
 		paper = paper.fold(f)
 	}
-	fmt.Print(paper)
+	log.Print("\n",paper)
 }
